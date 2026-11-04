@@ -300,6 +300,15 @@ Step 1 is long, so it is split into pieces that each take a week or two and each
 - **Cut, don't extend.** If a step runs long, cut features from it until its "done when" is true, and move the rest to the list.
 - **Close each step properly:** a packaged build, a tagged commit, and this doc updated with anything that changed.
 
+## Ideas for later
+
+New ideas go here instead of into the current step. Each one names the step it fits best.
+
+- **Debrief screen** (step 3): after every battle, show what each side lost, which objectives fell and how the sector result moved the overall map battle. It's what makes playing a battle feel like it counted.
+- **Battle alerts with filters** (step 8): instead of pausing for every battle, the player picks which ones interrupt, such as only big battles or only battles near the capital. Pausing for everything is fine on the 5–10 region slice, but not with a few hundred regions.
+- **A regiment that persists** (after step 4): the colonel's regiment keeps its name, veterans and losses from battle to battle, so the player cares about specific units on the map.
+- **Region features as objectives** (step 8): a region's factory, rail hub or bridge becomes a capture point in its battles, and whether it ends up held or wrecked changes that region on the map.
+
 ## Risks and open questions
 
 **Risks**
