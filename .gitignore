@@ -23,6 +23,7 @@ Packaged/
 .idea/
 .vscode/
 *.sln
+*.slnx
 *.suo
 *.sdf
 *.opensdf
