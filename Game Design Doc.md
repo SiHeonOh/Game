@@ -2,7 +2,7 @@
 
 Working title. Started Nov 6, 2026 · @Glaukopis
 
-This doc is being rebuilt one decision at a time. It replaces the prototype (`Game Architecture Design Doc.md`) once it's complete; the prototype's technical architecture will move into a separate tech doc. The lore lives in `Lore Files/Timeline.md`. Sections marked **Open** aren't decided yet.
+This doc is being rebuilt one decision at a time. It replaces the prototype (`Game Architecture Design Doc.md`) once it's complete; the prototype's technical architecture (classes, the BattleSetup and BattleResult bridge, saving) will move into a separate tech doc. The lore lives in `Lore Files/Timeline.md`. Sections marked **Open** aren't decided yet.
 
 ## 1. Pitch
 
@@ -284,6 +284,8 @@ Each class needs its own model, rig, animation set and bot behavior, and faction
 
 ## 10. Scope
 
+**First milestone: the end of step 5.** A small European campaign with infantry and walkers, playable in both general and soldier mode, is the first version worth showing or putting in early access (about 2–3 years in).
+
 **Release model: decided later,** once there's something worth showing. Until then, keep options open: track every asset's license as if the game will be sold, and keep graphics and battle size scalable so it isn't tied to a high-end PC.
 
 **A long-term passion project.** The full vision (HOI4-depth strategy plus a detailed combined-arms shooter) is the goal, with no release deadline. Solo at 5–10 hours a week that's likely a decade or more, so development leans heavily on AI assistance to go faster. Scope gets cut during building, when real costs are known, not up front.
@@ -295,7 +297,86 @@ Each class needs its own model, rig, animation set and bot behavior, and faction
 - **They meet in the campaign slice:** a small map whose battles launch real first-person fights. The two halves only talk through the BattleSetup and BattleResult, so each can be built and tested on its own until then.
 - The colonel comes after both core roles work.
 
-**Open:** the minimum game worth releasing, what gets cut first, and the roadmap.
+### Roadmap
+
+Every step ends in something playable. Times are rough, at 5–10 hours a week with AI assistance; the real ones get measured as steps finish.
+
+| Step | Done when | Includes | Rough time |
+| --- | --- | --- | --- |
+| 0. Setup ✅ | The project builds, opens and is safely in version control | Unreal 5.8 C++ project, Git with LFS on GitHub, Unreal MCP | Done Nov 2026 |
+| 1. Infantry battle | A battle against bots over objectives on the gray-box map is fun to replay, and the Mass experiment has decided the scale plan | Pieces listed below | 5–9 months |
+| 2. Squad leader and soldier depth | You lead a squad of bots through that battle, and soldiering feels detailed | Command wheel and more orders; formations, cover and suppression for squads; injuries and medics, inventory and weight, scavenging, weapon handling; survival detail scaled by distance; morale effects on the player | 3–6 months |
+| 3. Campaign slice (general mode) | You conquer a few European regions, fighting battles in first person on generated maps, and the map changes | Both side tracks below come together: 5–10 regions, two or more factions, battles launched from the map, filtered alerts and a battle list, BattleResult applied, the campaign pausing during battles, a versioned save | 3–6 months |
+| 4. Walkers | Light and medium walkers fight alongside infantry with bot crews, and you can drive one in first or third person | Walker movement and leg animation from the Blender generator, seats and crews, the third-person camera, bot drivers, shot-out legs, infantry anti-walker weapons; the light and medium classes | 4–7 months |
+| 5. Soldier mode | You enlist, follow your unit through the slice's war and earn a promotion | A persistent character, the AI running your faction, between-battle loadout, war news and squad management, reinforcement squads, picking a new unit; serving in a walker crew | 1–3 months |
+| 6. Big battles | A major offensive feels huge without losing frame rate | Mass far layer with baked animation, handoff to full soldiers near the player. Only if the step 1 experiment passed; otherwise tune standard soldiers to their limit | 2–4 months |
+| 7. Colonel | You win a battle through orders alone | Command map anywhere, radio reports and fog of war, orders by radio with delay, artillery fire missions, off-map air strikes, command delay on leader death | 2–4 months |
+| 8. More walkers | All six walker classes fight, and the colonel can command them | Heavy, walker destroyer, artillery and support walkers on the step 4 systems: mostly new models from the generator, data rows and bot behavior; artillery walkers fire the colonel's fire missions | 2–4 months |
+| 9. Planes | Planes fly air support and dogfight over the battle, and you can fly any of them | Ace Combat-style flight, guns, rockets and bombs, bot pilots, airfields and off-map arrival, the pilot career | 3–6 months |
+| 10. Sea and sky | Warships and airships fight, and you can command one | Naval battles, commanding a warship and an airship from the bridge, amphibious landings | 4–8 months |
+| 11. Full Europe | A full campaign across Europe with every strategy system | Hundreds of regions, the research tree, diplomacy, focus trees, politics, supply, resources and trade, WMDs and their costs, events and mysteries, the steamroll brakes, and documented data formats for modding | 8–14 months |
+| 12+. The world | The full game | Other continents, the flying carrier, national walker lines, hand-made key maps, polish, a release decision | Ongoing |
+
+Steps 1–11 add up to roughly 4–7 years.
+
+**Why walkers sit at step 4:** the campaign slice comes first because proving that battles and the campaign work together is the bigger risk. Walkers come right after it because every later step (soldier mode, big battles, the colonel) is richer with armor, and the test walker already proved the art pipeline. Light and medium are built first because two classes are enough to make the walker systems general; the other four are then mostly new models and data, so they follow in step 8, when the colonel exists to command them. Step 1 matters most: nothing else is added until a battle is fun to replay.
+
+**Side tracks,** worked on in separate weeks as breaks from the main track:
+
+- **A. Strategy map in 2D** (start any time; needed by step 3): the region map for a slice of Europe, factions as data, armies that move, real-time ticks with pause, the auto-resolver, a simple AI.
+- **B. Battle map generator** (start once step 1's battle works; needed by step 3): real elevation and land-use data turned into low-poly terrain, roads, forests and towns, the same map for the same place every time, and ruined, irradiated and entrenched variants as layers.
+
+**Step 1 in pieces.** Each takes a week or a few and ends playable:
+
+1. ✅ Walk around a gray-box map with the template's rifle.
+2. **Data foundation and projectile manager:** weapons as data rows in text files with stable IDs; soldier state as plain data; `UProjectileSubsystem` replaces the template's bullets.
+3. **Your own soldier:** `ASoldierCharacter` with aim down sights, crouch and prone, lean, manual reload with magazines, and grounded movement.
+4. **One bot that sees you and shoots back,** using the same soldier class.
+5. **Health, wounds, death and two teams,** with taking over a squadmate on death.
+6. **The Mass experiment (time-boxed):** about 1,000 simple soldiers fighting in the gray-box map; measure, and decide the scale plan.
+7. **Suppression and morale:** suppression for bots and the player; retreat, rout and surrender.
+8. **Squads and a bot commander:** squads follow their leaders, and a commander sends them to objectives with orders as data.
+9. **Objectives and reinforcements:** capture points and a front-line push; reinforcement units drawn from manpower.
+10. **A hand-written BattleSetup** (a text file) decides who spawns with what, and the battle writes a BattleResult.
+11. **A performance test** with the chosen scale approach, which sets the bot-count target.
+12. **A packaged build** that runs outside the editor, ideally played by a friend.
+
+**How to work through a step** (from the prototype, still true):
+
+- **Gray box first.** Make it work and make it fun with placeholder shapes; art comes last.
+- **Playtest every week.** Play the current build, write down the three biggest problems, and fix those first.
+- **Keep an ideas list.** New ideas go to "Ideas for later", not into the current step.
+- **Cut, don't extend.** If a step runs long, cut features until its "done when" is true, and move the rest to the ideas list.
+- **Close each step properly:** a packaged build, a tagged commit, and this doc updated.
+
+### Cut order
+
+If the project runs long and something big has to go, or be pushed past Full Europe:
+
+1. **National lines go first.** Factions share a few bloc equipment families with their own markings.
+2. **The Mass far layer goes second.** Battles stay at what standard soldiers can do, a few hundred, even if the experiment passed.
+3. **Nothing else is cut.** Flyable planes, sea and sky, and every rank are core; past this point the project slows down instead of shrinking.
+
+## 11. Risks
+
+| Risk | Mitigation |
+| --- | --- |
+| Bot AI is the biggest body of work: soldiers, squads, commanders, crews, pilots and the strategic AI | Few order types and simple behaviors first; playtest every week |
+| The Mass far layer is unproven in Unreal shooters | A time-boxed experiment in step 1 before anything depends on it; soldier state as plain data from day one |
+| The battle map generator might not make maps that are fun to fight on | Start it as a side track early; hand-made maps for key places; gray-box test generated maps |
+| Content volume: national equipment lines, six walker classes, focus trees for every major faction | Generator scripts for hard-surface art; blocs before national lines; generic focus trees for minors |
+| Solo pace over many years: losing motivation | Every step ends playable; share builds with friends; the ideas list |
+| Learning Unreal C++ | Blueprints for wiring and tuning; core systems in C++ with AI help |
+| Saves breaking as the game changes | A versioned save format from day one |
+| Git LFS storage and bandwidth costs as assets grow | Generated outputs stay out of Git (scripts are the source); check GitHub's LFS usage before buying asset packs |
+
+## 12. Ideas for later
+
+New ideas go here instead of into the current step. Each names the step it fits best.
+
+- **Debrief screen** (step 3): after every battle, show what each side lost, which objectives fell and how the result moved the map battle.
+- **A regiment that persists** (step 4 or later): your regiment keeps its name, veterans and losses from battle to battle.
+- **Region features as objectives** (step 10): a region's factory, rail hub or bridge becomes a target in its battles, and whether it ends up held or wrecked changes that region on the map.
 
 ## Decision log
 
@@ -303,46 +384,51 @@ Each class needs its own model, rig, animation set and bot behavior, and faction
 | --- | --- | --- | --- |
 | 1 | 2026-11-06 | Which rank is the heart of the game? | Squad leader (battles) and general (campaign) are core; all four ranks should be full experiences |
 | 2 | 2026-11-06 | Which order do the ranks get built in? | Left to architecture: battles lead (grunt basics, then squad leader), the strategy map is built alongside as a 2D side track, they meet in the campaign slice, colonel after |
-| 45 | 2026-11-06 | How big is a battle map? | Varies with the battle: about 1 km for skirmishes up to 4–8 km for major offensives, with a larger low-detail area for planes |
-| 44 | 2026-11-06 | Pitch and pillars? | Approved as drafted: every battle is part of the war; one soldier in a huge war; every rank in first person; grounded, not run-and-gun; a broken world, built as data |
-| 43 | 2026-11-06 | How different is each faction's equipment? | A mix of blocs and national lines by region and country, set by the lore (in progress) |
-| 42 | 2026-11-06 | What happens when soldiers break? | All: retreat and rout, surrender (player too), prisoners of war on the strategy map, morale effects on the player |
-| 41 | 2026-11-06 | How do you find battles to fight? | Both: filtered alerts that pause and ask, plus a list of every active battle |
-| 40 | 2026-11-06 | What happens to the war during a battle? | The campaign pauses (general mode) |
-| 39 | 2026-11-06 | Still single-player only? | Yes, no co-op or PvP |
-| 38 | 2026-11-06 | Who is the game for? | Decide later; meanwhile track asset licenses as if selling, keep performance scalable |
-| 37 | 2026-11-06 | Should the game support mods? | Data modding from the start (text files, stable IDs, add/override); full mod support with a mod kit decided after release |
-| 36 | 2026-11-06 | How is the story told? | HOI4-style events, lore in the world, and mysteries to uncover; no scripted squadmate stories |
-| 35 | 2026-11-06 | What does using a WMD cost? | Retaliation, home-front stability and war support, and lasting damage; no automatic world reaction |
-| 34 | 2026-11-06 | What drives the economy? | Factories and manpower, strategic resources (fuel, steel, food, uranium, Hesperium), and trade; no salvage economy |
-| 33 | 2026-11-06 | How does the colonel command? | First person only, no RTS camera; the command map opens anywhere; radio reports and orders still lag |
-| 32 | 2026-11-06 | What's playable at sea? | Amphibious landings, commanding a warship, and naval battles; vehicles (air, naval, walkers) allow a third-person camera, World of Tanks / World of Warships style |
-| 31 | 2026-11-06 | Can you crew an airship? | Command it from the bridge only; no turret crewing, airship career or boarding |
-| 30 | 2026-11-06 | Can you fly planes? | Yes, arcade handling like Ace Combat; a pilot career in soldier mode, any plane in general mode |
-| 29 | 2026-11-06 | What are battles fought over? | All: capture points, front-line pushes, targets, and battle types that vary with the strategy situation; time limits optional |
-| 28 | 2026-11-06 | Where do battle maps come from? | Generated from real elevation and land-use data everywhere, plus hand-made maps for key places; ruined, irradiated and entrenched variants are layers driven by the strategy map |
-| 27 | 2026-11-06 | Aim for thousands with Mass? | Yes, as a target proven by a time-boxed experiment partway through step 1 (about 1,000 Mass soldiers fighting); soldier state is plain data from day one so soldiers can switch between actor and Mass |
-| 26 | 2026-11-06 | How big are battles? | The larger the better: size varies with the battle, layered fidelity (full detail near the player, cheaper soldiers farther out, Mass only if needed); numbers set by the step 1 performance test |
-| 25 | 2026-11-06 | What if your whole squad is wiped out? | Continue in a reinforcement unit (in soldier mode it becomes your squad, new people); with no reinforcements left, pick a new unit on the strategy screen |
-| 24 | 2026-11-06 | How do you get back in after dying? | Take over a squadmate; leaders are taken over too, with a delay before the new leader can give orders |
-| 23 | 2026-11-06 | What happens between battles in soldier mode? | Pick loadout from available equipment, follow the war on a read-only map, manage your squad as you rise |
-| 22 | 2026-11-06 | Does the soldier rise through the ranks? | Yes, by earned promotions, starting as a grunt |
-| 21 | 2026-11-06 | Which battles can the player join? | Two game modes: general (any battle your faction fights, as much as you like) and soldier (a persistent character in one unit, strategy automated, continue as another soldier in that unit on death) |
-| 20 | 2026-11-06 | Which art style? | Low-poly, after the scripted walker test; the test walker's design itself was rejected |
-| 19 | 2026-11-06 | Which part of the world first? | Europe first; the scope is global |
-| 18 | 2026-11-06 | When does the campaign start? | 1955, the frozen world |
-| 17 | 2026-11-06 | What's the plan for the scope? | Long-term passion project; maximize AI-assisted development; cut scope later while building |
-| 16 | 2026-11-06 | What stops a steamroll? | Like HOI4, all four: WMD deterrence, occupation costs, coalitions, poisoned land |
-| 15 | 2026-11-06 | How does a campaign end? | Sandbox: no formal win |
-| 14 | 2026-11-06 | Which factions can the player run? | Any faction; majors get custom focus trees, minors share a generic one |
-| 13 | 2026-11-06 | Which other HOI4 systems are in? | All: diplomacy, focus trees, politics, and supply (simpler than HOI4: decisive, but no railway spam) |
-| 12 | 2026-11-06 | How do factions get new technology? | HOI4-style research tree, sped up by decisions and perks |
-| 11 | 2026-11-06 | Where does the flying carrier fit? | Wonder-level superweapon: buildable by anyone with the resources, technology and docks; in practice only the strongest, three at most |
-| 10 | 2026-11-06 | What are airships in gameplay? | Battleships of the sky: strategic assets only some factions can build; conventional fighters, jets and bombers still exist |
-| 9 | 2026-11-06 | Which walker classes? | World of Tanks-style: light, medium, heavy, walker destroyer, artillery, support |
-| 8 | 2026-11-06 | Walkers or tanks? | Walkers, Iron Harvest-style dieselpunk; legs are animation with foot IK, not physics |
-| 7 | 2026-11-06 | Do bots get the survival systems? | Near the player only; distant bots use simple versions |
-| 6 | 2026-11-06 | Which DayZ aspects? | All four: injuries and medical, inventory and weight, scavenging, weapon handling |
-| 5 | 2026-11-06 | Which soldier actions are in? | All of: aim down sights, crouch and prone, lean, manual reload. Detailed side, like Easy Red 2 and Battlefield, some DayZ |
-| 4 | 2026-11-06 | What stops CoD-style run-and-gun? | Same reasons as BF1: moderate lethality (not 1–2 hits across the board), suppression that affects the player, grounded movement |
 | 3 | 2026-11-06 | What makes 15 minutes as squad leader great? | Situational, set by the strategy map: consequence in high-stakes fights, BF1/Ravenfield spectacle in big ones, desperation when the campaign puts you on the back foot; tactics at the command level, not Squad/RoN; no CoD run-and-gun |
+| 4 | 2026-11-06 | What stops CoD-style run-and-gun? | Same reasons as BF1: moderate lethality (not 1–2 hits across the board), suppression that affects the player, grounded movement |
+| 5 | 2026-11-06 | Which soldier actions are in? | All of: aim down sights, crouch and prone, lean, manual reload. Detailed side, like Easy Red 2 and Battlefield, some DayZ |
+| 6 | 2026-11-06 | Which DayZ aspects? | All four: injuries and medical, inventory and weight, scavenging, weapon handling |
+| 7 | 2026-11-06 | Do bots get the survival systems? | Near the player only; distant bots use simple versions |
+| 8 | 2026-11-06 | Walkers or tanks? | Walkers, Iron Harvest-style dieselpunk; legs are animation with foot IK, not physics |
+| 9 | 2026-11-06 | Which walker classes? | World of Tanks-style: light, medium, heavy, walker destroyer, artillery, support |
+| 10 | 2026-11-06 | What are airships in gameplay? | Battleships of the sky: strategic assets only some factions can build; conventional fighters, jets and bombers still exist |
+| 11 | 2026-11-06 | Where does the flying carrier fit? | Wonder-level superweapon: buildable by anyone with the resources, technology and docks; in practice only the strongest, three at most |
+| 12 | 2026-11-06 | How do factions get new technology? | HOI4-style research tree, sped up by decisions and perks |
+| 13 | 2026-11-06 | Which other HOI4 systems are in? | All: diplomacy, focus trees, politics, and supply (simpler than HOI4: decisive, but no railway spam) |
+| 14 | 2026-11-06 | Which factions can the player run? | Any faction; majors get custom focus trees, minors share a generic one |
+| 15 | 2026-11-06 | How does a campaign end? | Sandbox: no formal win |
+| 16 | 2026-11-06 | What stops a steamroll? | Like HOI4, all four: WMD deterrence, occupation costs, coalitions, poisoned land |
+| 17 | 2026-11-06 | What's the plan for the scope? | Long-term passion project; maximize AI-assisted development; cut scope later while building |
+| 18 | 2026-11-06 | When does the campaign start? | 1955, the frozen world |
+| 19 | 2026-11-06 | Which part of the world first? | Europe first; the scope is global |
+| 20 | 2026-11-06 | Which art style? | Low-poly, after the scripted walker test; the test walker's design itself was rejected |
+| 21 | 2026-11-06 | Which battles can the player join? | Two game modes: general (any battle your faction fights, as much as you like) and soldier (a persistent character in one unit, strategy automated, continue as another soldier in that unit on death) |
+| 22 | 2026-11-06 | Does the soldier rise through the ranks? | Yes, by earned promotions, starting as a grunt |
+| 23 | 2026-11-06 | What happens between battles in soldier mode? | Pick loadout from available equipment, follow the war on a read-only map, manage your squad as you rise |
+| 24 | 2026-11-06 | How do you get back in after dying? | Take over a squadmate; leaders are taken over too, with a delay before the new leader can give orders |
+| 25 | 2026-11-06 | What if your whole squad is wiped out? | Continue in a reinforcement unit (in soldier mode it becomes your squad, new people); with no reinforcements left, pick a new unit on the strategy screen |
+| 26 | 2026-11-06 | How big are battles? | The larger the better: size varies with the battle, layered fidelity (full detail near the player, cheaper soldiers farther out, Mass only if needed); numbers set by the step 1 performance test |
+| 27 | 2026-11-06 | Aim for thousands with Mass? | Yes, as a target proven by a time-boxed experiment partway through step 1 (about 1,000 Mass soldiers fighting); soldier state is plain data from day one so soldiers can switch between actor and Mass |
+| 28 | 2026-11-06 | Where do battle maps come from? | Generated from real elevation and land-use data everywhere, plus hand-made maps for key places; ruined, irradiated and entrenched variants are layers driven by the strategy map |
+| 29 | 2026-11-06 | What are battles fought over? | All: capture points, front-line pushes, targets, and battle types that vary with the strategy situation; time limits optional |
+| 30 | 2026-11-06 | Can you fly planes? | Yes, arcade handling like Ace Combat; a pilot career in soldier mode, any plane in general mode |
+| 31 | 2026-11-06 | Can you crew an airship? | Command it from the bridge only; no turret crewing, airship career or boarding |
+| 32 | 2026-11-06 | What's playable at sea? | Amphibious landings, commanding a warship, and naval battles; vehicles (air, naval, walkers) allow a third-person camera, World of Tanks / World of Warships style |
+| 33 | 2026-11-06 | How does the colonel command? | First person only, no RTS camera; the command map opens anywhere; radio reports and orders still lag |
+| 34 | 2026-11-06 | What drives the economy? | Factories and manpower, strategic resources (fuel, steel, food, uranium, Hesperium), and trade; no salvage economy |
+| 35 | 2026-11-06 | What does using a WMD cost? | Retaliation, home-front stability and war support, and lasting damage; no automatic world reaction |
+| 36 | 2026-11-06 | How is the story told? | HOI4-style events, lore in the world, and mysteries to uncover; no scripted squadmate stories |
+| 37 | 2026-11-06 | Should the game support mods? | Data modding from the start (text files, stable IDs, add/override); full mod support with a mod kit decided after release |
+| 38 | 2026-11-06 | Who is the game for? | Decide later; meanwhile track asset licenses as if selling, keep performance scalable |
+| 39 | 2026-11-06 | Still single-player only? | Yes, no co-op or PvP |
+| 40 | 2026-11-06 | What happens to the war during a battle? | The campaign pauses (general mode) |
+| 41 | 2026-11-06 | How do you find battles to fight? | Both: filtered alerts that pause and ask, plus a list of every active battle |
+| 42 | 2026-11-06 | What happens when soldiers break? | All: retreat and rout, surrender (player too), prisoners of war on the strategy map, morale effects on the player |
+| 43 | 2026-11-06 | How different is each faction's equipment? | A mix of blocs and national lines by region and country, set by the lore (in progress) |
+| 44 | 2026-11-06 | Pitch and pillars? | Approved as drafted: every battle is part of the war; one soldier in a huge war; every rank in first person; grounded, not run-and-gun; a broken world, built as data |
+| 45 | 2026-11-06 | How big is a battle map? | Varies with the battle: about 1 km for skirmishes up to 4–8 km for major offensives, with a larger low-detail area for planes |
+| 46 | 2026-11-06 | Where do walkers go in the roadmap? | Light and medium at step 4, right after the campaign slice; heavy, walker destroyer, artillery and support in step 8, after the colonel |
+| 47 | 2026-11-06 | Which step makes the first showable game? | The end of step 5: a small European campaign with infantry and walkers, in general and soldier mode |
+| 48 | 2026-11-06 | What gets cut first? | National lines (blocs only) |
+| 49 | 2026-11-06 | What gets cut second? | The Mass far layer (battles stay at standard-soldier size) |
+| 50 | 2026-11-06 | Sea and sky or flyable planes next? | Neither: both are core; past the first two cuts, slow down instead of cutting |
