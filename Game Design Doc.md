@@ -87,6 +87,20 @@ Using a WMD doesn't by itself turn the rest of the world against you; coalitions
 
 **A HOI4-style research tree.** Factions spend research over time to unlock weapons, walkers, aircraft, airships and doctrines. Decisions and perks can speed research up, as in HOI4. Big capabilities such as airships and the flying carrier sit deep in the tree and also need their own facilities (an airship dock, for example).
 
+**Research is a strategy, not a checklist.** The tree is built around choices that shape what kind of army a faction fields. For example:
+- prioritize infantry equipment over walkers, or the reverse;
+- research and mass-produce medium walkers;
+- focus on heavy walkers, or go further into superheavy ones.
+
+What you research decides what your factories can build, and so what your soldiers actually fight with in first person.
+
+**Equipment trees are laid out like World of Tanks and World of Warships:** each equipment type has lines of designs, one leading to the next, with branches. Superheavy walkers, for example, are their own class but branch off a heavy walker line. The difference is the currency: you advance with research time, not battle experience.
+
+**Choices mostly cost time, but some close doors:**
+- **Opportunity cost is the main rule:** most of the tree can eventually be researched, but focusing on one path leaves the others years behind.
+- **Some technologies lock out others,** where two designs or approaches can't coexist.
+- **Doctrines lock each other out,** HOI4-style: picking one doctrine closes its rivals for good.
+
 ### Grand-strategy systems
 
 The strategy map is no longer "HOI4-lite". It has HOI4's main systems, each simplified where HOI4 turns into busywork:
@@ -101,6 +115,8 @@ The strategy map is no longer "HOI4-lite". It has HOI4's main systems, each simp
 **The player can run any faction**, HOI4-style. Major factions get hand-made focus trees; minor factions share a generic tree. Factions are deliberately unequal: starting as a minor splinter state is meant to be a harder game, not a balanced one.
 
 **Equipment is a mix of blocs and national lines,** depending on region and country: some factions field their own designs, others share a bloc's family of equipment. Which is which comes from the lore, which is still being written. Every national line multiplies art work (walkers above all), so the number of lines is a key scope lever.
+
+**Equipment is deliberately unbalanced.** Quality varies by faction and by period: a poor or cut-off faction may fight for years with obsolete rifles and old walkers, while a rich one fields the newest designs. Weapons are tuned to be believable for their era and maker, not to be fair, and research, production, trade and capture are how a faction climbs out of a bad period.
 
 ### Winning
 
@@ -218,11 +234,14 @@ How they're built (a game-feel approach, not a physics simulation):
 | Light | Fast scouts that spot and flank |
 | Medium | The main battle walker and the backbone of an armored attack |
 | Heavy | Slow, heavily armored, anchors a battle |
+| Superheavy | A walking fortress: huge, very slow, several turrets, rare and enormously expensive; a battle's centerpiece |
 | Walker destroyer | A big gun built to kill other walkers, weaker everywhere else (like a tank destroyer) |
 | Artillery | Indirect fire from behind the lines |
 | Support | Troop carriers, engineering and recovery walkers |
 
 Each class needs its own model, rig, animation set and bot behavior, and factions will want their own variants, so walker art and animation is one of the largest content costs in the game.
+
+**Why superheavies are their own class:** they play by different rules from heavies. They need their own pathfinding size and can step over walls and trenches; they carry several turrets, which makes them closer to a land warship than a big heavy; bots use them differently (escorted centerpieces, not front-line anchors); and the strategy map limits how many a faction can field. A separate class keeps those rules clean in code, data and the UI. In the research tree they still branch off a heavy line.
 
 **Test asset (Nov 6, 2026):** a light anti-personnel walker inspired by the BT-5, with twin side machine guns, built entirely by a Blender generator script (`Blender Files/Walkers/LightAP/build_walker_light_ap.py`). It has about 4,500 triangles, seven flat colors and 10 bones. The legs are reverse-knee with a keyed walk cycle (two-bone IK computed in the script), not linkage legs. It imported into Unreal and played in `L_GrayBox`. It took one working session, including fixing the export scale. The design was rejected, so the model was removed from the project; the script stays as the template for future walkers and rebuilds the test walker in about 30 seconds. Pipeline notes:
 
@@ -311,7 +330,7 @@ Every step ends in something playable. Times are rough, at 5–10 hours a week w
 | 5. Soldier mode | You enlist, follow your unit through the slice's war and earn a promotion | A persistent character, the AI running your faction, between-battle loadout, war news and squad management, reinforcement squads, picking a new unit; serving in a walker crew | 1–3 months |
 | 6. Big battles | A major offensive feels huge without losing frame rate | Mass far layer with baked animation, handoff to full soldiers near the player. Only if the step 1 experiment passed; otherwise tune standard soldiers to their limit | 2–4 months |
 | 7. Colonel | You win a battle through orders alone | Command map anywhere, radio reports and fog of war, orders by radio with delay, artillery fire missions, off-map air strikes, command delay on leader death | 2–4 months |
-| 8. More walkers | All six walker classes fight, and the colonel can command them | Heavy, walker destroyer, artillery and support walkers on the step 4 systems: mostly new models from the generator, data rows and bot behavior; artillery walkers fire the colonel's fire missions | 2–4 months |
+| 8. More walkers | All seven walker classes fight, and the colonel can command them | Heavy, superheavy, walker destroyer, artillery and support walkers on the step 4 systems: mostly new models from the generator, data rows and bot behavior; superheavies also need their own pathfinding size and several turrets; artillery walkers fire the colonel's fire missions | 3–5 months |
 | 9. Planes | Planes fly air support and dogfight over the battle, and you can fly any of them | Ace Combat-style flight, guns, rockets and bombs, bot pilots, airfields and off-map arrival, the pilot career | 3–6 months |
 | 10. Sea and sky | Warships and airships fight, and you can command one | Naval battles, commanding a warship and an airship from the bridge, amphibious landings | 4–8 months |
 | 11. Full Europe | A full campaign across Europe with every strategy system | Hundreds of regions, the research tree, diplomacy, focus trees, politics, supply, resources and trade, WMDs and their costs, events and mysteries, the steamroll brakes, and documented data formats for modding | 8–14 months |
@@ -325,6 +344,11 @@ Steps 1–11 add up to roughly 4–7 years.
 
 - **A. Strategy map in 2D** (start any time; needed by step 3): the region map for a slice of Europe, factions as data, armies that move, real-time ticks with pause, the auto-resolver, a simple AI.
 - **B. Battle map generator** (start once step 1's battle works; needed by step 3): real elevation and land-use data turned into low-poly terrain, roads, forests and towns, the same map for the same place every time, and ruined, irradiated and entrenched variants as layers.
+- **C. Lore** (any time, no engine needed). Equipment, factions and walker designs all come from it, so it has deadlines:
+  - **before step 3:** the campaign slice's region, its two or more factions, who holds which arms factories in 1955, and so which equipment each faction fields (bloc or national, modern or obsolete);
+  - **before step 4:** each walker-building tradition's design language, which settles the doc's last open art question;
+  - **before step 11:** every European faction, with the material for focus trees, events and mysteries;
+  - **before step 12:** the other continents.
 
 **Step 1 in pieces.** Each takes a week or a few and ends playable:
 
@@ -364,7 +388,7 @@ If the project runs long and something big has to go, or be pushed past Full Eur
 | Bot AI is the biggest body of work: soldiers, squads, commanders, crews, pilots and the strategic AI | Few order types and simple behaviors first; playtest every week |
 | The Mass far layer is unproven in Unreal shooters | A time-boxed experiment in step 1 before anything depends on it; soldier state as plain data from day one |
 | The battle map generator might not make maps that are fun to fight on | Start it as a side track early; hand-made maps for key places; gray-box test generated maps |
-| Content volume: national equipment lines, six walker classes, focus trees for every major faction | Generator scripts for hard-surface art; blocs before national lines; generic focus trees for minors |
+| Content volume: national equipment lines, seven walker classes, focus trees for every major faction | Generator scripts for hard-surface art; blocs before national lines; generic focus trees for minors |
 | Solo pace over many years: losing motivation | Every step ends playable; share builds with friends; the ideas list |
 | Learning Unreal C++ | Blueprints for wiring and tuning; core systems in C++ with AI help |
 | Saves breaking as the game changes | A versioned save format from day one |
@@ -432,3 +456,8 @@ New ideas go here instead of into the current step. Each names the step it fits 
 | 48 | 2026-11-06 | What gets cut first? | National lines (blocs only) |
 | 49 | 2026-11-06 | What gets cut second? | The Mass far layer (battles stay at standard-soldier size) |
 | 50 | 2026-11-06 | Sea and sky or flyable planes next? | Neither: both are core; past the first two cuts, slow down instead of cutting |
+| 51 | 2026-11-06 | Is equipment balanced between factions? | No: quality varies by faction and period; weapons are believable for their era and maker, not fair |
+| 52 | 2026-11-06 | When does the lore get written? | Side track C, any time, with deadlines: slice region and factions before step 3, walker design traditions before step 4, all of Europe before step 11 |
+| 53 | 2026-11-06 | How binding are research choices? | Mostly opportunity cost; some technologies lock out others; doctrines lock each other out |
+| 54 | 2026-11-06 | Where do superheavy walkers fit? | A branch of the heavy line, in World of Tanks / World of Warships-style equipment trees advanced with research time, not battle experience |
+| 55 | 2026-11-06 | Should superheavies be their own class? | Yes, a seventh class (own pathfinding size, several turrets, rarity limits); in the research tree they still branch off a heavy line. Replaces the class part of decision 54 |
