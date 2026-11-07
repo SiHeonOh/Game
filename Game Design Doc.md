@@ -2,7 +2,7 @@
 
 Working title. Started Nov 6, 2026 · @Glaukopis
 
-This doc is being rebuilt one decision at a time. It replaces the prototype (`Game Architecture Design Doc.md`) once it's complete; the prototype's technical architecture (classes, the BattleSetup and BattleResult bridge, saving) will move into a separate tech doc. The lore lives in `Lore Files/Timeline.md`. Sections marked **Open** aren't decided yet.
+This doc is being rebuilt one decision at a time. It replaces the prototype (`Game Architecture Design Doc.md`) once it's complete; the prototype's technical architecture (classes, the BattleSetup and BattleResult bridge, saving) will move into a separate tech doc. The lore lives in `Lore Files/` (start with its README and `Timeline.md`). Sections marked **Open** aren't decided yet.
 
 ## 1. Pitch
 
@@ -48,7 +48,7 @@ It's 1955, ten years after an alternate Second World War ended in nuclear, chemi
 
 ## 4. Setting
 
-From `Lore Files/Timeline.md`:
+From `Lore Files/` (the details are in `World/`, `Events/` and `Places/`):
 
 - **Divergences:** walking war machines replace the tank in 1916; Fermi recognizes fission in 1934, and his team finds Hesperium, a stable superheavy element that produces lift.
 - **The war:** D-Day fails in 1944. In July 1945 the US nukes Germany and Japan with four bombs (one fails). The Allies turn on each other: a nuclear, chemical and biological hot war runs from mid-1946 to about 1948 and ends in collapse, not victory.

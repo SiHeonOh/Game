@@ -41,10 +41,20 @@ Keep handoffs short and factual. Point to the design doc and commits instead of 
 Blender Files/            Blender sources: generator scripts and hand-made .blend files
 Game Files/Black_Curtain/ the Unreal project
 Handoffs/                 session handoffs, one file per session (see Session handoffs)
-Lore Files/               setting and history notes (Markdown)
+Lore Files/               the setting: one Markdown file per faction, maker, event or place (see Lore)
 Game Design Doc.md        the design doc
 CLAUDE.md                 this file
 ```
+
+## Lore
+
+The lore is the user's writing; it lives in `Lore Files/`, one file per thing, and `Lore Files/README.md` holds its folder, naming and format rules. Follow that README for every lore file.
+
+- **Before designing anything that touches the setting** (factions, equipment, events, focus trees, maps), read `Lore Files/README.md` once, then search the `summary:` lines of the relevant folder and open only the files you need. `Timeline.md` is the chronology; `OPEN.md` lists what's undecided.
+- **Respect `status`:** build on `canon`; treat `draft` and `idea` as unsettled and say so; ignore `cut` unless asked.
+- **Don't change the user's lore wording** without asking. Adding headers, links, "In the game" sections, or splitting a file without rewording is fine.
+- **Lore IDs and game-data IDs are the same IDs** (`fac_`, `mfr_`, equipment IDs), so lore maps straight onto data rows.
+- **Keep the top-level files current:** add a line to `Timeline.md` for every new dated event, and remove `OPEN.md` entries once they're settled.
 
 ## The rule behind the layout: equipment belongs to manufacturers, not factions
 
