@@ -101,6 +101,12 @@ What you research decides what your factories can build, and so what your soldie
 - **Some technologies lock out others,** where two designs or approaches can't coexist.
 - **Doctrines lock each other out,** HOI4-style: picking one doctrine closes its rivals for good.
 
+**Depth: about 8–13 steps per line or branch.** Roughly 6–7 of them are truly new models; the rest are variants of those models (a better gun, more armor, a new engine, a field conversion). Variants are cheap to make with the Blender generators, so the tree can be deep while only the new models need new art. Depth varies by country: a major arms producer has long lines with rival manufacturers, while a minor nation may have a short line of its own and buy the rest.
+
+Real history supports this pace: in wartime, armies fielded new designs every 2–4 years and upgrades every few months, and the US Air Force went through about a dozen fighters in 1945–1965.
+
+**The tree spans about 20 years, 1955 to 1975.** With 8–13 steps per line, a faction that focuses on one line gets a new step every 1.5–2.5 years, close to real wartime pace; lines it neglects fall years behind. The campaign is a sandbox and can run past 1975, but the tree ends there.
+
 ### Grand-strategy systems
 
 The strategy map is no longer "HOI4-lite". It has HOI4's main systems, each simplified where HOI4 turns into busywork:
@@ -115,6 +121,8 @@ The strategy map is no longer "HOI4-lite". It has HOI4's main systems, each simp
 **The player can run any faction**, HOI4-style. Major factions get hand-made focus trees; minor factions share a generic tree. Factions are deliberately unequal: starting as a minor splinter state is meant to be a harder game, not a balanced one.
 
 **Equipment is a mix of blocs and national lines,** depending on region and country: some factions field their own designs, others share a bloc's family of equipment. Which is which comes from the lore, which is still being written. Every national line multiplies art work (walkers above all), so the number of lines is a key scope lever.
+
+**Equipment comes from manufacturers.** Within a bloc or nation, designs come from specific makers (arms companies and state design bureaus), each with its own design language, so a maker's walkers, rifles and planes look related. One manufacturer can supply many nations, the way several European countries fly the same Rafale, while some countries develop their own weapons. Which country uses which manufacturer's equipment is set in the lore. Manufacturers aren't a strategy-map mechanic: capturing a region doesn't capture a maker's designs.
 
 **Equipment is deliberately unbalanced.** Quality varies by faction and by period: a poor or cut-off faction may fight for years with obsolete rifles and old walkers, while a rich one fields the newest designs. Weapons are tuned to be believable for their era and maker, not to be fair, and research, production, trade and capture are how a faction climbs out of a bad period.
 
@@ -342,12 +350,13 @@ Steps 1–11 add up to roughly 4–7 years.
 
 **Side tracks,** worked on in separate weeks as breaks from the main track:
 
-- **A. Strategy map in 2D** (start any time; needed by step 3): the region map for a slice of Europe, factions as data, armies that move, real-time ticks with pause, the auto-resolver, a simple AI.
+- **A. Strategy map in 2D** (start any time; needed by step 3): the region map for a slice of Europe, factions as data, armies that move, real-time ticks with pause, the auto-resolver, a simple AI. After step 3, a small research prototype on the slice (a few equipment lines and one doctrine lock) tests that research choices change what you fight with, long before the full trees exist.
 - **B. Battle map generator** (start once step 1's battle works; needed by step 3): real elevation and land-use data turned into low-poly terrain, roads, forests and towns, the same map for the same place every time, and ruined, irradiated and entrenched variants as layers.
-- **C. Lore** (any time, no engine needed). Equipment, factions and walker designs all come from it, so it has deadlines:
-  - **before step 3:** the campaign slice's region, its two or more factions, who holds which arms factories in 1955, and so which equipment each faction fields (bloc or national, modern or obsolete);
-  - **before step 4:** each walker-building tradition's design language, which settles the doc's last open art question;
-  - **before step 11:** every European faction, with the material for focus trees, events and mysteries;
+- **C. Lore and research trees** (any time, no engine needed). Equipment, factions, walker designs and the research trees all come from the lore, so this track has deadlines:
+  - **before step 3:** the campaign slice's region, its two or more factions, and which manufacturers' equipment each faction fields in 1955 (bloc or national, modern or obsolete). These are the first rungs of their research lines;
+  - **before step 4:** each walker manufacturer's design language, which settles the doc's last open art question, plus the light and medium walker rungs for the slice's makers;
+  - **after step 3:** the small research prototype's lines (see side track A);
+  - **before step 11:** every European faction, the full research trees (all lines, branches, technology locks and doctrines), and the material for focus trees, events and mysteries;
   - **before step 12:** the other continents.
 
 **Step 1 in pieces.** Each takes a week or a few and ends playable:
@@ -461,3 +470,6 @@ New ideas go here instead of into the current step. Each names the step it fits 
 | 53 | 2026-11-06 | How binding are research choices? | Mostly opportunity cost; some technologies lock out others; doctrines lock each other out |
 | 54 | 2026-11-06 | Where do superheavy walkers fit? | A branch of the heavy line, in World of Tanks / World of Warships-style equipment trees advanced with research time, not battle experience |
 | 55 | 2026-11-06 | Should superheavies be their own class? | Yes, a seventh class (own pathfinding size, several turrets, rarity limits); in the research tree they still branch off a heavy line. Replaces the class part of decision 54 |
+| 56 | 2026-11-06 | How is shared equipment organized within a bloc? | By manufacturer: each maker has a design language and belongs to a line; one maker can supply many nations (like the Rafale); which country uses what is set in the lore; not a strategy-map capture mechanic |
+| 57 | 2026-11-06 | How deep is each research line? | About 8–13 steps per line or branch: roughly 6–7 new models, the rest variants; depth varies by country |
+| 58 | 2026-11-06 | How many years does the research tree span? | About 20 years, 1955 to 1975; a focused line gets a new step every 1.5–2.5 years; the sandbox can run past 1975 |
